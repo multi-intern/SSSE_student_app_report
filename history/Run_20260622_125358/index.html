@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SSSE Student Login Analytics Report</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            /* --- UPDATED GRADIENT THEME MATCHING COLOR PALETTE IMAGE --- */
+            --bg-main: #1D1616;          /* Charcoal Black Row */
+            --card-dark: #2A1F1F;        /* Deep Wine Crimson Body Row */
+            --border-slate: #8E1616;     /* Dark Crimson Border Accents */
+            --accent-red: #D84040;       /* Bright Coral-Red Focal Highlights */
+            --fg-white: #EEEEEE;         /* Light Ash Gray Text Row */
+            --fg-gray: #B0A2A2;          
+            
+            --capsule-green: #10B981;
+            --capsule-green-bg: rgba(16, 185, 129, 0.12);
+            --capsule-red: #EF4444;
+            --capsule-red-bg: rgba(239, 68, 68, 0.12);
+        }
+        
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            padding: 30px;
+            background-color: var(--bg-main); 
+            color: var(--fg-white); 
+        }
+        
+        .header-container {
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 3px solid var(--border-slate);
+            padding-bottom: 3vh;
+        }
+        
+        .header-container h1 {
+            color: var(--fg-white);
+            margin: 0 0 8px 0;
+            font-size: 2.2em;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+        
+        .header-container p {
+            color: var(--fg-gray);
+            margin: 0;
+            font-size: 1.05em;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-container {
+            text-align: right;
+            margin-bottom: 25px;
+        }
+        .filter-container label {
+            font-weight: 600;
+            color: var(--fg-gray);
+            margin-right: 10px;
+            font-size: 1em;
+        }
+        .filter-select {
+            background: var(--card-dark);
+            color: var(--fg-white);
+            border: 1px solid var(--border-slate);
+            padding: 8px 15px;
+            font-size: 1em;
+            border-radius: 6px;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .filter-select:focus {
+            border-color: var(--accent-red);
+        }
+
+        .dashboard-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1.3fr;
+            gap: 20px;
+            margin-bottom: 35px;
+        }
+        @media (max-width: 950px) {
+            .dashboard-row { grid-template-columns: 1fr; }
+        }
+        
+        .kpi-card {
+            background: var(--card-dark);
+            border: 1px solid var(--border-slate);
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .kpi-card.working-kpi { border-left: 5px solid var(--capsule-green); }
+        .kpi-card.failed-kpi { border-left: 5px solid var(--capsule-red); }
+        
+        .kpi-title {
+            font-size: 0.85em;
+            text-transform: uppercase;
+            color: var(--fg-gray);
+            letter-spacing: 0.8px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .kpi-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: var(--fg-white);
+        }
+        
+        .config-summary-box {
+            background: var(--card-dark);
+            border: 1px solid var(--border-slate);
+            border-left: 5px solid var(--accent-red);
+            padding: 15px 20px;
+            border-radius: 8px;
+        }
+        .blueprint-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 15px;
+            margin-top: 8px;
+        }
+        .blueprint-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+            color: var(--fg-white);
+        }
+        .blueprint-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--accent-red);
+            cursor: not-allowed;
+            opacity: 1 !important;
+        }
+        .blueprint-item label {
+            cursor: not-allowed;
+            color: var(--fg-white);
+        }
+
+        .report-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+        }
+        
+        .card { 
+            background: var(--card-dark); 
+            border: 1px solid var(--border-slate);
+            padding: 20px; 
+            border-radius: 8px; 
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+        }
+        
+        .card:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent-red);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+        .card.non-working-card:hover {
+            border-color: var(--capsule-red);
+        }
+        
+        .card-header-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-slate);
+            padding-bottom: 10px;
+        }
+        
+        .action-title { 
+            color: var(--fg-white); 
+            margin: 0;
+            font-size: 1.1em;
+            line-height: 1.3;
+            font-weight: 600;
+        }
+        
+        .time-capsule {
+            background-color: var(--capsule-green-bg);
+            color: var(--capsule-green);
+            border: 1px solid var(--capsule-green);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        .time-capsule.failed-capsule {
+            background-color: var(--capsule-red-bg);
+            color: var(--capsule-red);
+            border: 1px solid var(--capsule-red);
+        }
+        
+        .image-wrapper {
+            background: #120D0D;
+            border-radius: 6px;
+            padding: 8px;
+            text-align: center;
+            margin-top: auto;
+            border: 1px solid rgba(255,255,255,0.03);
+        }
+        
+        img { 
+            max-width: 100%; 
+            height: auto;
+            max-height: 450px;
+            border-radius: 4px; 
+            display: inline-block; 
+        }
+    </style>
+</head>
+<body>
+    <div class="header-container">
+        <h1>SSSE STUDENT LOGIN TEST REPORT</h1>
+        <p>Monday, June 22, 2026 | 12:53:58 PM</p>
+    </div>
+
+    <div class="filter-container">
+        <label for="statusFilter">Filter Pages View:</label>
+        <select id="statusFilter" class="filter-select" onchange="filterReportGrid()">
+            <option value="all">Show All Elements (5)</option>
+            <option value="working">Working Only (3)</option>
+            <option value="non-working">Non-Working Only (2)</option>
+        </select>
+    </div>
+
+    <div class="dashboard-row">
+        <div class="kpi-card working-kpi">
+            <div class="kpi-title">🟢 Working Pages</div>
+            <div class="kpi-value">3 Passed</div>
+        </div>
+        <div class="kpi-card failed-kpi">
+            <div class="kpi-title">🔴 Non-Working Pages</div>
+            <div class="kpi-value">2 Errors</div>
+        </div>
+        <div class="config-summary-box">
+            <div class="kpi-title" style="color: var(--accent-red); font-weight: bold;">🛠 Executed Modules Blueprint</div>
+            <div class="blueprint-grid">
+                
+        <div class="blueprint-item">
+            <input type="checkbox" id="bp_Login Phase"  disabled>
+            <label for="bp_Login Phase">Login Phase</label>
+        </div>
+        
+        <div class="blueprint-item">
+            <input type="checkbox" id="bp_Home Scrolls"  disabled>
+            <label for="bp_Home Scrolls">Home Scrolls</label>
+        </div>
+        
+        <div class="blueprint-item">
+            <input type="checkbox" id="bp_Profile Check"  disabled>
+            <label for="bp_Profile Check">Profile Check</label>
+        </div>
+        
+        <div class="blueprint-item">
+            <input type="checkbox" id="bp_Grid Execution" checked disabled>
+            <label for="bp_Grid Execution">Grid Execution</label>
+        </div>
+        
+        <div class="blueprint-item">
+            <input type="checkbox" id="bp_Query Search"  disabled>
+            <label for="bp_Query Search">Query Search</label>
+        </div>
+        
+            </div>
+        </div>
+    </div>
+
+    <div class="report-grid">
+    
+        <div class="card" data-status="working">
+            <div>
+                <div class="card-header-wrapper">
+                    <h3 class="action-title">Click 'txtMore' parent container to access grid menu</h3>
+                    <div class="time-capsule">1.34 seconds</div>
+                </div>
+            </div>
+        </div>
+        <div class="card non-working-card" data-status="non-working">
+            <div>
+                <div class="card-header-wrapper">
+                    <h3 class="action-title">Attendance <span style='color:var(--capsule-red); font-size:0.8em;'>[NON-WORKING]</span></h3>
+                    <div class="time-capsule failed-capsule">1.29 seconds</div>
+                </div>
+            </div>
+        
+            <div class="image-wrapper">
+                <img src="non_working_pages/grid_item_loaded_1.png" alt="Viewport Capture" />
+            </div>
+            </div>
+        <div class="card" data-status="working">
+            <div>
+                <div class="card-header-wrapper">
+                    <h3 class="action-title">Hostel Rules</h3>
+                    <div class="time-capsule">1.26 seconds</div>
+                </div>
+            </div>
+        
+            <div class="image-wrapper">
+                <img src="grid_item_loaded_2.png" alt="Viewport Capture" />
+            </div>
+            </div>
+        <div class="card non-working-card" data-status="non-working">
+            <div>
+                <div class="card-header-wrapper">
+                    <h3 class="action-title">Your Subjects <span style='color:var(--capsule-red); font-size:0.8em;'>[NON-WORKING]</span></h3>
+                    <div class="time-capsule failed-capsule">0.06 seconds</div>
+                </div>
+            </div>
+        
+            <div class="image-wrapper">
+                <img src="non_working_pages/grid_item_loaded_3.png" alt="Viewport Capture" />
+            </div>
+            </div>
+        <div class="card" data-status="working">
+            <div>
+                <div class="card-header-wrapper">
+                    <h3 class="action-title">Time Table</h3>
+                    <div class="time-capsule">0.06 seconds</div>
+                </div>
+            </div>
+        
+            <div class="image-wrapper">
+                <img src="grid_item_loaded_4.png" alt="Viewport Capture" />
+            </div>
+            </div>
+    </div>
+
+    <script>
+        function filterReportGrid() {
+            var selectElement = document.getElementById("statusFilter");
+            var selectedValue = selectElement.value;
+            var cards = document.querySelectorAll(".card");
+            
+            cards.forEach(function(card) {
+                var cardStatus = card.getAttribute("data-status");
+                if (selectedValue === "all") {
+                    card.style.display = "flex";
+                } else if (selectedValue === cardStatus) {
+                    card.style.display = "flex";
+                } else {
+                    card.style.display = "none";
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+    
