@@ -1,5 +1,13 @@
 [
     {
+        "id": "Run_20260622_132008",
+        "app_name": "SSSE Student Login",
+        "date": "2026-06-22 01:20 PM",
+        "working": 2,
+        "non_working": 2,
+        "url": "history/Run_20260622_132008/index.html"
+    },
+    {
         "id": "Run_20260622_131251",
         "app_name": "SSSE Student Login",
         "date": "2026-06-22 01:12 PM",
