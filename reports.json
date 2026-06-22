@@ -1,5 +1,13 @@
 [
     {
+        "id": "Run_20260622_155017",
+        "app_name": "ADCET Student Login",
+        "date": "2026-06-22 03:50 PM",
+        "working": 14,
+        "non_working": 1,
+        "url": "history/Run_20260622_155017/index.html"
+    },
+    {
         "id": "Run_20260622_132934",
         "app_name": "SSSE Student Login",
         "date": "2026-06-22 01:29 PM",
